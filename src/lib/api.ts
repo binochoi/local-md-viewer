@@ -5,6 +5,7 @@ export interface FileEntry {
   title: string
   modifiedAt: string
   dirLabel?: string
+  repositoryName?: string
 }
 
 export interface FileContent {
@@ -12,6 +13,9 @@ export interface FileContent {
   filename: string
   date: string | null
   content: string
+  title?: string
+  repositoryName?: string
+  worktreeName?: string
 }
 
 export interface FilesResponse {
