@@ -1,12 +1,12 @@
 {
-  "name": "claude-plan-visualizer",
+  "name": "local-md-viewer",
   "version": "0.1.5",
-  "description": "A visual browser for Claude Code plan documents",
+  "description": "A local-first markdown viewer for browsing plan documents and design docs",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "claude-plan-visualizer": "./bin/cli.mjs",
-    "claude-plan-visualizer-hook": "./bin/hook.mjs"
+    "local-md-viewer": "./bin/cli.mjs",
+    "local-md-viewer-hook": "./bin/hook.mjs"
   },
   "files": [
     "bin/",

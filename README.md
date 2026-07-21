@@ -1,8 +1,8 @@
 <p>
-  <img src="public/logo.svg" width="200" alt="Claude Plan Visualizer" />
+  <img src="public/logo.svg" width="200" alt="Local MD Viewer" />
 </p>
 
-# Claude Plan Visualizer
+# Local MD Viewer
 
 A beautiful, local-first markdown viewer for browsing plan documents and design docs. Point it at any directory of `.md` files and get a clean reading experience with sidebar navigation, table of contents, full-text search, and syntax highlighting.
 
@@ -11,7 +11,7 @@ Built with React, Tailwind CSS v4, and shadcn/ui.
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="public/examples/dark.png" width="100%" />
   <source media="(prefers-color-scheme: light)" srcset="public/examples/light.png" width="100%" />
-  <img src="public/examples/light.png" alt="Claude Plan Visualizer screenshot" width="100%" />
+  <img src="public/examples/light.png" alt="Local MD Viewer screenshot" width="100%" />
 </picture>
 
 ## Features
@@ -31,13 +31,13 @@ Built with React, Tailwind CSS v4, and shadcn/ui.
 ## Quick start
 
 ```bash
-npm i -g claude-plan-visualizer
+npm i -g local-md-viewer
 ```
 
 Then run it from any project directory:
 
 ```bash
-claude-plan-visualizer
+local-md-viewer
 ```
 
 This starts a local server, opens your browser, and serves all `.md` files. It auto-detects `.claude/plans` or `docs/plans` in the current directory.
@@ -56,25 +56,25 @@ View plans from multiple projects at once:
 
 ```bash
 # Repeat the --dir flag
-claude-plan-visualizer --dir ./proj1/.claude/plans --dir ./proj2/.claude/plans
+local-md-viewer --dir ./proj1/.claude/plans --dir ./proj2/.claude/plans
 
 # Or use comma-separated paths
-claude-plan-visualizer --dir ./proj1/.claude/plans,./proj2/.claude/plans
+local-md-viewer --dir ./proj1/.claude/plans,./proj2/.claude/plans
 ```
 
 The sidebar groups files by directory with collapsible sections, so you can easily browse plans from different projects.
 
 ### Environment variables
 
-| Variable     | Description                                             |
-| ------------ | ------------------------------------------------------- |
-| `CPV_PORT`   | Override port (takes priority over `--port`)             |
-| `CPV_REMOTE` | Set to `1` for remote/devcontainer mode (skip auto-open) |
+| Variable     | Description                                              |
+| ------------ | --------------------------------------------------------- |
+| `APP_PORT`   | Override port (takes priority over `--port`)               |
+| `APP_REMOTE` | Set to `1` for remote/devcontainer mode (skip auto-open)   |
 
 Remote mode is useful when running inside SSH sessions, devcontainers, or Codespaces:
 
 ```bash
-CPV_REMOTE=1 claude-plan-visualizer
+APP_REMOTE=1 local-md-viewer
 # → Remote mode: open http://localhost:3200 in your browser
 ```
 
@@ -86,7 +86,7 @@ Automatically open the plan viewer whenever Claude exits plan mode:
 
 ```bash
 # Print setup instructions
-claude-plan-visualizer-hook --setup
+local-md-viewer-hook --setup
 ```
 
 Add to your `~/.claude/settings.json`:
@@ -100,7 +100,7 @@ Add to your `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "claude-plan-visualizer-hook"
+            "command": "local-md-viewer-hook"
           }
         ]
       }

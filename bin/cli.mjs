@@ -31,23 +31,23 @@ const hasFlag = (name) => args.includes(`--${name}`)
 
 if (hasFlag('help') || hasFlag('h')) {
   console.log(`
-  Usage: claude-plan-visualizer [--dir <path>] [--port <number>] [--no-open]
+  Usage: local-md-viewer [--dir <path>] [--port <number>] [--no-open]
 
   Options:
     --dir <path>    Path to plans directory (repeatable, comma-separated)
-    --port <number> Port to serve on (default: 3200, env: CPV_PORT)
+    --port <number> Port to serve on (default: 3200, env: APP_PORT)
     --no-open       Don't open browser automatically
     --help          Show this help message
 
   Environment variables:
-    CPV_PORT=<n>    Override port (takes priority over --port)
-    CPV_REMOTE=1    Remote/devcontainer mode: fixed port, skip browser auto-open
+    APP_PORT=<n>    Override port (takes priority over --port)
+    APP_REMOTE=1    Remote/devcontainer mode: fixed port, skip browser auto-open
 `)
   process.exit(0)
 }
 
 // Env vars
-const isRemote = process.env.CPV_REMOTE === '1'
+const isRemote = process.env.APP_REMOTE === '1'
 
 // Collect --dir args, supporting comma-separated values
 function collectDirs() {
@@ -81,7 +81,7 @@ function findPlansDirs() {
 }
 
 const dirs = findPlansDirs()
-const port = parseInt(process.env.CPV_PORT || getArg('port', '3200'), 10)
+const port = parseInt(process.env.APP_PORT || getArg('port', '3200'), 10)
 const noOpen = hasFlag('no-open') || isRemote
 
 if (dirs.length === 0) {
@@ -90,7 +90,7 @@ if (dirs.length === 0) {
   console.error(`  - .claude/plans`)
   console.error(`  - docs/plans`)
   console.error(``)
-  console.error(`Usage: claude-plan-visualizer --dir <path-to-plans>`)
+  console.error(`Usage: local-md-viewer --dir <path-to-plans>`)
   process.exit(1)
 }
 
@@ -253,7 +253,7 @@ const server = createServer(async (req, res) => {
 server.listen(port, async () => {
   const url = `http://localhost:${port}`
   console.log(``)
-  console.log(`  Claude Plan Visualizer`)
+  console.log(`  Local MD Viewer`)
   console.log(`  Project: ${projectName}`)
   for (const entry of dirEntries) {
     console.log(`  Plans:   ${entry.path}`)

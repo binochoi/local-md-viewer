@@ -5,7 +5,7 @@ type Theme = "light" | "system" | "dark";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "system";
-  const stored = localStorage.getItem("plans-viewer-theme");
+  const stored = localStorage.getItem("local-md-viewer-theme");
   if (stored === "light" || stored === "dark" || stored === "system")
     return stored;
   return "system";
@@ -31,7 +31,7 @@ export function ThemeToggle() {
       );
     };
     apply();
-    localStorage.setItem("plans-viewer-theme", theme);
+    localStorage.setItem("local-md-viewer-theme", theme);
 
     if (theme === "system") {
       const mql = window.matchMedia("(prefers-color-scheme: dark)");

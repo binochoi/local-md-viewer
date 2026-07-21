@@ -7,7 +7,7 @@ const args = process.argv.slice(2)
 
 if (args.includes('--setup')) {
   console.log(`
-Claude Plan Visualizer — ExitPlanMode Hook Setup
+Local MD Viewer — ExitPlanMode Hook Setup
 =================================================
 
 Add to your ~/.claude/settings.json:
@@ -20,7 +20,7 @@ Add to your ~/.claude/settings.json:
         "hooks": [
           {
             "type": "command",
-            "command": "claude-plan-visualizer-hook"
+            "command": "local-md-viewer-hook"
           }
         ]
       }
@@ -60,12 +60,12 @@ async function main() {
     input = Buffer.concat(chunks).toString('utf-8')
   }
 
-  const port = parseInt(process.env.CPV_PORT || String(DEFAULT_PORT), 10)
+  const port = parseInt(process.env.APP_PORT || String(DEFAULT_PORT), 10)
   const running = await isServerRunning(port)
 
   if (!running) {
     // Start the server in the background
-    const child = spawn('claude-plan-visualizer', ['--port', String(port)], {
+    const child = spawn('local-md-viewer', ['--port', String(port)], {
       detached: true,
       stdio: 'ignore',
       env: { ...process.env },
