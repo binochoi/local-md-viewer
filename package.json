@@ -1,6 +1,6 @@
 {
   "name": "local-md-viewer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A local-first markdown viewer for browsing plan documents and design docs",
   "license": "MIT",
   "type": "module",
@@ -10,6 +10,7 @@
   },
   "files": [
     "bin/",
+    "scripts/",
     "dist/",
     "LICENSE"
   ],
