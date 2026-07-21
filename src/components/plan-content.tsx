@@ -33,6 +33,19 @@ const headingComponents = Object.fromEntries(
   ])
 )
 
+function TableWithScroll(props: ComponentPropsWithoutRef<'table'>) {
+  return (
+    <div className="table-scroll-wrapper">
+      <table {...props} />
+    </div>
+  )
+}
+
+const markdownComponents = {
+  ...headingComponents,
+  table: TableWithScroll,
+}
+
 interface PlanContentProps {
   slug: string
   onContentLoaded?: (content: string) => void
@@ -77,23 +90,26 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
     )
   }
 
-  const metaLine = [file.repositoryName, file.worktreeName].filter(Boolean).join(' · ')
+  const subLine = [file.date && formatDate(file.date), file.repositoryName]
+    .filter(Boolean)
+    .join(' · ')
 
   return (
     <div>
+      {file.worktreeName && (
+        <p className="text-sm text-muted-foreground">{file.worktreeName}</p>
+      )}
       {file.title && (
         <h1 className="text-2xl font-semibold">{file.title}</h1>
       )}
-      {(file.date || metaLine) && (
-        <p className="mb-1 text-sm text-muted-foreground">
-          {[file.date && formatDate(file.date), metaLine].filter(Boolean).join(' · ')}
-        </p>
+      {subLine && (
+        <p className="mb-1 text-sm text-muted-foreground">{subLine}</p>
       )}
       <article className="prose max-w-none">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight, rehypeSlug]}
-          components={headingComponents}
+          components={markdownComponents}
         >
           {file.content}
         </ReactMarkdown>
