@@ -5,6 +5,7 @@ import { dirname, join, resolve, basename } from 'node:path'
 import { existsSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { readdir, stat, readFile } from 'node:fs/promises'
+import { DATE_PREFIX_RE, slugToTitle, readPlanFrontmatter, resolveDefaultPlansDir } from '../scripts/plan-utils.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -67,17 +68,8 @@ function findPlansDirs() {
   const explicit = collectDirs()
   if (explicit.length > 0) return explicit
 
-  const cwd = process.cwd()
-  const candidates = [
-    join(cwd, '.claude', 'plans'),
-    join(cwd, 'docs', 'plans'),
-  ]
-
-  for (const candidate of candidates) {
-    if (existsSync(candidate)) return [candidate]
-  }
-
-  return []
+  const defaultDir = resolveDefaultPlansDir(process.cwd())
+  return defaultDir ? [defaultDir] : []
 }
 
 const dirs = findPlansDirs()
@@ -109,17 +101,6 @@ function getDirLabel(dirPath) {
 const dirEntries = dirs.map((d) => ({ path: d, label: getDirLabel(d) }))
 const multiDir = dirs.length > 1
 
-const DATE_PREFIX_RE = /^(\d{4}-\d{2}-\d{2})-(.+)$/
-
-function slugToTitle(slug) {
-  const match = slug.match(DATE_PREFIX_RE)
-  const withoutDate = match ? match[2] : slug
-  return withoutDate
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
-
 function getMimeType(ext) {
   const types = {
     '.html': 'text/html',
@@ -143,12 +124,14 @@ async function scanDirectory(plansDir, dirLabel) {
     const slug = filename.replace(/\.md$/, '')
     const dateMatch = slug.match(DATE_PREFIX_RE)
     const fileStat = await stat(join(plansDir, filename))
+    const { data } = await readPlanFrontmatter(join(plansDir, filename))
     files.push({
       slug,
       filename,
       date: dateMatch ? dateMatch[1] : null,
-      title: slugToTitle(slug),
+      title: data.title ?? slugToTitle(slug),
       modifiedAt: fileStat.mtime.toISOString(),
+      ...(data.repositoryName ? { repositoryName: data.repositoryName } : {}),
       ...(multiDir ? { dirLabel } : {}),
     })
   }
@@ -222,7 +205,7 @@ const server = createServer(async (req, res) => {
         return
       }
 
-      const content = await readFile(filepath, 'utf-8')
+      const { data, content } = await readPlanFrontmatter(filepath)
       const dateMatch = slug.match(DATE_PREFIX_RE)
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({
@@ -230,6 +213,9 @@ const server = createServer(async (req, res) => {
         filename: basename(filepath),
         date: dateMatch ? dateMatch[1] : null,
         content,
+        ...(data.title ? { title: data.title } : {}),
+        ...(data.repositoryName ? { repositoryName: data.repositoryName } : {}),
+        ...(data.worktreeName ? { worktreeName: data.worktreeName } : {}),
       }))
       return
     }

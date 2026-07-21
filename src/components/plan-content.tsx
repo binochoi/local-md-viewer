@@ -77,11 +77,16 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
     )
   }
 
+  const metaLine = [file.repositoryName, file.worktreeName].filter(Boolean).join(' · ')
+
   return (
     <div>
-      {file.date && (
+      {file.title && (
+        <h1 className="text-2xl font-semibold">{file.title}</h1>
+      )}
+      {(file.date || metaLine) && (
         <p className="mb-1 text-sm text-muted-foreground">
-          {formatDate(file.date)}
+          {[file.date && formatDate(file.date), metaLine].filter(Boolean).join(' · ')}
         </p>
       )}
       <article className="prose max-w-none">

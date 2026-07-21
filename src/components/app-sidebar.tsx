@@ -62,7 +62,14 @@ function DateGroupList({ groups, location }: { groups: DayGroup[]; location: str
                         isActive={location === `/${file.slug}`}
                         render={<Link href={`/${file.slug}`} />}
                       >
-                        {file.title}
+                        <span className="flex flex-col">
+                          <span>{file.title}</span>
+                          {file.repositoryName && (
+                            <span className="text-xs text-muted-foreground">
+                              {file.repositoryName}
+                            </span>
+                          )}
+                        </span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}
