@@ -5,7 +5,7 @@ import rehypeHighlight from 'rehype-highlight'
 import rehypeSlug from 'rehype-slug'
 import { LinkIcon } from 'lucide-react'
 import { fetchFileContent, type FileContent } from '@/lib/api'
-import { formatDate } from '@/lib/utils'
+import { formatRelativeDate } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 
 function HeadingWithAnchor({
@@ -90,7 +90,7 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
     )
   }
 
-  const subLine = [file.date && formatDate(file.date), file.repositoryName]
+  const subLine = [file.repositoryName, file.date && formatRelativeDate(file.date)]
     .filter(Boolean)
     .join(' · ')
 
