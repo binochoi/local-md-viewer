@@ -155,6 +155,10 @@ npm run preview -- --dir ./my-docs
 - [wouter](https://github.com/molefrog/wouter) for routing
 - [cmdk](https://cmdk.paco.me) for the command palette
 
+## Credits
+
+This project is a fork of [claude-plan-visualizer](https://github.com/felipeorlando/claude-plan-visualizer) by Felipe Orlando.
+
 ## License
 
 MIT
