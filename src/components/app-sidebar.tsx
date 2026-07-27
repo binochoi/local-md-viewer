@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { Link, useLocation } from 'wouter'
-import { ChevronRightIcon, FolderIcon, SearchIcon } from 'lucide-react'
+import { CheckCheckIcon, ChevronRightIcon, FolderIcon, SearchIcon } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import type { DayGroup, DirSection } from '@/hooks/use-plans'
+import { useReadState } from '@/hooks/use-read-state'
 import {
   Collapsible,
   CollapsibleContent,
@@ -23,8 +24,13 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarGroupAction,
   SidebarRail,
 } from '@/components/ui/sidebar'
+
+function collectSlugs(groups: DayGroup[]): string[] {
+  return groups.flatMap((group) => group.files.map((file) => file.slug))
+}
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   groups: DayGroup[]
@@ -37,6 +43,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 function DateGroupList({ groups, location }: { groups: DayGroup[]; location: string }) {
+  const { isRead } = useReadState()
   return (
     <>
       {groups.map((group) => (
@@ -55,24 +62,35 @@ function DateGroupList({ groups, location }: { groups: DayGroup[]; location: str
             {group.files.length > 0 && (
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {group.files.map((file) => (
+                  {group.files.map((file) => {
+                    const read = isRead(file.slug)
+                    return (
                     <SidebarMenuSubItem key={file.slug}>
                       <SidebarMenuSubButton
                         className="h-auto min-h-7 py-1"
                         isActive={location === `/${file.slug}`}
                         render={<Link href={`/${file.slug}`} />}
                       >
-                        <span className="flex flex-col">
-                          <span>{file.title}</span>
-                          {file.repositoryName && (
-                            <span className="text-xs text-muted-foreground">
-                              {file.repositoryName}
-                            </span>
-                          )}
+                        <span className="flex items-start gap-2">
+                          <span
+                            className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
+                              read ? 'bg-transparent' : 'bg-primary'
+                            }`}
+                            aria-label={read ? undefined : 'Unread'}
+                          />
+                          <span className={`flex flex-col ${read ? 'text-muted-foreground' : ''}`}>
+                            <span>{file.title}</span>
+                            {file.repositoryName && (
+                              <span className="text-xs text-muted-foreground">
+                                {file.repositoryName}
+                              </span>
+                            )}
+                          </span>
                         </span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
-                  ))}
+                    )
+                  })}
                 </SidebarMenuSub>
               </CollapsibleContent>
             )}
@@ -94,6 +112,7 @@ export function AppSidebar({
   ...props
 }: AppSidebarProps) {
   const [location] = useLocation()
+  const { markAllRead } = useReadState()
 
   return (
     <Sidebar {...props}>
@@ -144,12 +163,19 @@ export function AppSidebar({
             <SidebarGroup key={section.dirLabel}>
               <Collapsible defaultOpen className="group/dir">
                 <SidebarGroupLabel asChild>
-                  <CollapsibleTrigger className="flex w-full items-center gap-1.5">
-                    <FolderIcon className="size-3.5" />
-                    {section.dirLabel}
-                    <ChevronRightIcon className="ml-auto size-3.5 transition-transform group-data-[state=open]/dir:rotate-90" />
+                  <CollapsibleTrigger className="flex w-full items-center gap-1.5 pr-7">
+                    <FolderIcon className="size-3.5 shrink-0" />
+                    <span className="truncate">{section.dirLabel}</span>
+                    <ChevronRightIcon className="size-3.5 shrink-0 transition-transform group-data-[state=open]/dir:rotate-90" />
                   </CollapsibleTrigger>
                 </SidebarGroupLabel>
+                <SidebarGroupAction
+                  title="이 폴더 전체 읽음 처리"
+                  onClick={() => markAllRead(collectSlugs(section.groups))}
+                >
+                  <CheckCheckIcon />
+                  <span className="sr-only">이 폴더 전체 읽음 처리</span>
+                </SidebarGroupAction>
                 <CollapsibleContent>
                   <SidebarMenu>
                     <DateGroupList groups={section.groups} location={location} />
@@ -161,6 +187,14 @@ export function AppSidebar({
         ) : (
           // Single directory mode: flat date groups
           <SidebarGroup>
+            <SidebarGroupLabel className="pr-7">Documents</SidebarGroupLabel>
+            <SidebarGroupAction
+              title="전체 읽음 처리"
+              onClick={() => markAllRead(collectSlugs(groups))}
+            >
+              <CheckCheckIcon />
+              <span className="sr-only">전체 읽음 처리</span>
+            </SidebarGroupAction>
             <SidebarMenu>
               <DateGroupList groups={groups} location={location} />
             </SidebarMenu>

@@ -35,3 +35,24 @@ export async function fetchFileContent(slug: string): Promise<FileContent> {
   if (!res.ok) throw new Error('Failed to fetch file content')
   return res.json()
 }
+
+export async function fetchReadState(): Promise<string[]> {
+  const res = await fetch('/api/read-state')
+  if (!res.ok) throw new Error('Failed to fetch read state')
+  const data = await res.json()
+  return Array.isArray(data.read) ? data.read : []
+}
+
+export async function updateReadState(
+  slugs: string[],
+  read: boolean
+): Promise<string[]> {
+  const res = await fetch('/api/read-state', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slugs, read }),
+  })
+  if (!res.ok) throw new Error('Failed to update read state')
+  const data = await res.json()
+  return Array.isArray(data.read) ? data.read : []
+}

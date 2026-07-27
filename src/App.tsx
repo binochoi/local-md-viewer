@@ -11,6 +11,7 @@ import { CommandMenu } from '@/components/command-menu'
 import { EmptyState } from '@/components/empty-state'
 import { PlanPage } from '@/pages/plan-page'
 import { usePlans } from '@/hooks/use-plans'
+import { ReadStateProvider } from '@/hooks/use-read-state'
 
 export default function App() {
   const { files, groups, dirSections, hasMultipleDirs, projectName, loading, error } = usePlans()
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <TooltipProvider>
+      <ReadStateProvider>
       <SidebarProvider>
         <AppSidebar
           groups={groups}
@@ -53,6 +55,7 @@ export default function App() {
           onOpenChange={setSearchOpen}
         />
       </SidebarProvider>
+      </ReadStateProvider>
     </TooltipProvider>
   )
 }

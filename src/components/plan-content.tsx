@@ -6,6 +6,7 @@ import rehypeSlug from 'rehype-slug'
 import { LinkIcon } from 'lucide-react'
 import { fetchFileContent, type FileContent } from '@/lib/api'
 import { formatRelativeDate } from '@/lib/utils'
+import { useReadState } from '@/hooks/use-read-state'
 import { Skeleton } from '@/components/ui/skeleton'
 
 function HeadingWithAnchor({
@@ -55,6 +56,7 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
   const [file, setFile] = useState<FileContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { markRead } = useReadState()
 
   useEffect(() => {
     setLoading(true)
@@ -63,10 +65,11 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
       .then((data) => {
         setFile(data)
         onContentLoaded?.(data.content)
+        markRead(slug)
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [slug, onContentLoaded])
+  }, [slug, onContentLoaded, markRead])
 
   if (loading) {
     return (
