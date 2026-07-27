@@ -49,9 +49,10 @@ const markdownComponents = {
 interface PlanContentProps {
   slug: string
   onContentLoaded?: (content: string) => void
+  onMetaLoaded?: (meta: { worktreeName?: string; repositoryName?: string }) => void
 }
 
-export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
+export function PlanContent({ slug, onContentLoaded, onMetaLoaded }: PlanContentProps) {
   const [file, setFile] = useState<FileContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,10 +64,14 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
       .then((data) => {
         setFile(data)
         onContentLoaded?.(data.content)
+        onMetaLoaded?.({
+          worktreeName: data.worktreeName,
+          repositoryName: data.repositoryName,
+        })
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [slug, onContentLoaded])
+  }, [slug, onContentLoaded, onMetaLoaded])
 
   if (loading) {
     return (
@@ -90,15 +95,10 @@ export function PlanContent({ slug, onContentLoaded }: PlanContentProps) {
     )
   }
 
-  const subLine = [file.repositoryName, file.date && formatRelativeDate(file.date)]
-    .filter(Boolean)
-    .join(' · ')
+  const subLine = file.date ? formatRelativeDate(file.date) : ''
 
   return (
     <div>
-      {file.worktreeName && (
-        <p className="text-sm text-muted-foreground">{file.worktreeName}</p>
-      )}
       {file.title && (
         <h1 className="text-2xl font-semibold">{file.title}</h1>
       )}

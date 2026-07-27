@@ -5,9 +5,10 @@ import { useToc } from '@/hooks/use-toc'
 
 interface PlanPageProps {
   slug: string
+  onMetaLoaded?: (meta: { worktreeName?: string; repositoryName?: string }) => void
 }
 
-export function PlanPage({ slug }: PlanPageProps) {
+export function PlanPage({ slug, onMetaLoaded }: PlanPageProps) {
   const [content, setContent] = useState<string | null>(null)
   const tocItems = useToc(content)
 
@@ -19,7 +20,11 @@ export function PlanPage({ slug }: PlanPageProps) {
     <div className="flex">
       <div className="flex-1 min-w-0">
         <div className="max-w-3xl mx-auto px-6 py-10 lg:px-10">
-          <PlanContent slug={slug} onContentLoaded={handleContentLoaded} />
+          <PlanContent
+            slug={slug}
+            onContentLoaded={handleContentLoaded}
+            onMetaLoaded={onMetaLoaded}
+          />
         </div>
       </div>
       <div className="hidden xl:block shrink-0">

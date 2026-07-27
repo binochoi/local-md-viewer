@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Route, Switch } from 'wouter'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import {
@@ -12,11 +12,24 @@ import { EmptyState } from '@/components/empty-state'
 import { PlanPage } from '@/pages/plan-page'
 import { usePlans } from '@/hooks/use-plans'
 
+function EmptyStateWithReset({ onMount }: { onMount: () => void }) {
+  useEffect(() => {
+    onMount()
+  }, [onMount])
+  return <EmptyState />
+}
+
 export default function App() {
   const { files, groups, dirSections, hasMultipleDirs, projectName, loading, error } = usePlans()
   const [searchOpen, setSearchOpen] = useState(false)
+  const [meta, setMeta] = useState<{ worktreeName?: string; repositoryName?: string } | null>(null)
 
   const openSearch = useCallback(() => setSearchOpen(true), [])
+  const handleMetaLoaded = useCallback(
+    (m: { worktreeName?: string; repositoryName?: string }) => setMeta(m),
+    []
+  )
+  const clearMeta = useCallback(() => setMeta(null), [])
 
   return (
     <TooltipProvider>
@@ -35,14 +48,32 @@ export default function App() {
             <div className="flex items-center gap-2 px-3">
               <SidebarTrigger />
             </div>
+            {meta?.worktreeName && (
+              <div className="pointer-events-none absolute left-1/2 flex -translate-x-1/2 flex-col items-center">
+                <span className="max-w-[50vw] truncate text-sm font-medium leading-tight">
+                  {meta.worktreeName}
+                </span>
+                {meta.repositoryName && (
+                  <span className="max-w-[50vw] truncate text-xs leading-tight text-muted-foreground">
+                    {meta.repositoryName}
+                  </span>
+                )}
+              </div>
+            )}
           </header>
           <div className="flex-1">
             <Switch>
               <Route path="/:slug">
-                {(params) => <PlanPage slug={params.slug} />}
+                {(params) => (
+                  <PlanPage
+                    key={params.slug}
+                    slug={params.slug}
+                    onMetaLoaded={handleMetaLoaded}
+                  />
+                )}
               </Route>
               <Route>
-                <EmptyState />
+                <EmptyStateWithReset onMount={clearMeta} />
               </Route>
             </Switch>
           </div>
