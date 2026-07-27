@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import { readdirSync, statSync, existsSync } from 'fs'
 import { DATE_PREFIX_RE, slugToTitle, readPlanFrontmatter, resolveDefaultPlansDir } from './scripts/plan-utils.mjs'
+import { handleReadStateRequest } from './scripts/read-state.mjs'
 
 function resolvePlansDir(): string {
   const explicit = process.env.PLANS_DIR
@@ -25,8 +26,22 @@ function plansApiPlugin() {
   return {
     name: 'plans-api',
     configureServer(server: any) {
-      server.middlewares.use((req: any, res: any, next: any) => {
+      server.middlewares.use(async (req: any, res: any, next: any) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
+
+        const listFiles = async () => {
+          if (!existsSync(dir)) return []
+          return readdirSync(dir)
+            .filter((f: string) => f.endsWith('.md'))
+            .map((filename: string) => ({
+              slug: filename.replace(/\.md$/, ''),
+              path: path.join(dir, filename),
+            }))
+        }
+
+        if (await handleReadStateRequest(req, res, url, { listFiles })) {
+          return
+        }
 
         if (url.pathname === '/api/files' && req.method === 'GET') {
           if (!existsSync(dir)) {

@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { readdir, stat, readFile } from 'node:fs/promises'
 import { DATE_PREFIX_RE, slugToTitle, readPlanFrontmatter, resolveDefaultPlansDir } from '../scripts/plan-utils.mjs'
+import { handleReadStateRequest } from '../scripts/read-state.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -161,6 +162,23 @@ async function scanAllDirectories() {
   return allFiles
 }
 
+// Flat list of every served markdown file as { slug, path } for read-state.
+async function listAllFiles() {
+  const result = []
+  for (const entry of dirEntries) {
+    if (!existsSync(entry.path)) continue
+    const entries = await readdir(entry.path)
+    for (const filename of entries) {
+      if (!filename.endsWith('.md')) continue
+      result.push({
+        slug: filename.replace(/\.md$/, ''),
+        path: join(entry.path, filename),
+      })
+    }
+  }
+  return result
+}
+
 function findFileAcrossDirs(slug) {
   const filename = `${slug}.md`
   for (const entry of dirEntries) {
@@ -184,9 +202,13 @@ const server = createServer(async (req, res) => {
   const pathname = url.pathname
 
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST')
 
   try {
+    if (await handleReadStateRequest(req, res, url, { listFiles: listAllFiles })) {
+      return
+    }
+
     if (pathname === '/api/files' && req.method === 'GET') {
       const files = await scanAllDirectories()
       res.writeHead(200, { 'Content-Type': 'application/json' })
